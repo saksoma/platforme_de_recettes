@@ -2,34 +2,192 @@
 {% block title %}{{ recipe.title }} - Recettes Maison{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row g-3">
   <div class="col-md-8">
     <div class="card mb-3">
       {% if recipe.image %}
         <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.title }}">
       {% endif %}
+
       <div class="card-body">
-        <h3>{{ recipe.title }}</h3>
-        <p class="text-muted">{% if recipe.category %}{{ recipe.category.name }} · {% endif %}{{ recipe.preparation_time }} min · {{ recipe.get_difficulty_display }}</p>
-        <div class="mb-3">{% for tag in recipe.tags.all %}<span class="badge bg-light text-muted me-1">{{ tag.name }}</span>{% empty %}<span class="text-muted">Sans tags</span>{% endfor %}</div>
-        <h5>Ingrédients</h5>
-        <p>{{ recipe.ingredients|linebreaks }}</p>
-        <h5>Préparation</h5>
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <div>
+            <h3>{{ recipe.title }}</h3>
+            <p class="text-muted mb-2">
+              {% if recipe.category %}{{ recipe.category.name }} - {% endif %}
+              {{ recipe.preparation_time }} min - {{ recipe.get_difficulty_display }} - {{ recipe.servings }} portions
+            </p>
+          </div>
+          {% if user.is_authenticated and user == recipe.author and recipe.status != 'approved' %}
+            <span class="badge bg-warning text-dark">{{ recipe.get_status_display }}</span>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          {% for tag in recipe.tags.all %}
+            <span class="badge bg-light text-muted me-1">{{ tag.name }}</span>
+          {% empty %}
+            <span class="text-muted">Sans tags</span>
+          {% endfor %}
+        </div>
+
+        <div class="border rounded p-3 mb-3 bg-light">
+          <div class="row align-items-end">
+            <div class="col-md-5">
+              <label for="servingsInput" class="form-label">Ajuster les portions</label>
+              <input id="servingsInput" class="form-control" type="number" min="1" value="{{ recipe.servings }}" data-base-servings="{{ recipe.servings }}">
+            </div>
+            <div class="col-md-7 small text-muted mt-2 mt-md-0">
+              Les quantites numeriques dans les ingredients sont recalculees automatiquement.
+            </div>
+          </div>
+        </div>
+
+        <h5>Ingredients</h5>
+        <pre id="ingredientsText" class="mb-3" style="white-space: pre-wrap; font-family: inherit;">{{ recipe.ingredients }}</pre>
+
+        <h5>Preparation</h5>
         <div>{{ recipe.steps|linebreaks }}</div>
+
+        {% if recipe.calories or recipe.protein or recipe.carbs or recipe.fat %}
+          <h5 class="mt-4">Valeurs nutritionnelles par portion</h5>
+          <div class="row g-2 mb-2">
+            {% if recipe.calories %}
+              <div class="col-6 col-md-3"><div class="border rounded p-2 bg-light"><strong>{{ recipe.calories }}</strong><br><span class="small text-muted">kcal</span></div></div>
+            {% endif %}
+            {% if recipe.protein %}
+              <div class="col-6 col-md-3"><div class="border rounded p-2 bg-light"><strong>{{ recipe.protein }}</strong><br><span class="small text-muted">Proteines</span></div></div>
+            {% endif %}
+            {% if recipe.carbs %}
+              <div class="col-6 col-md-3"><div class="border rounded p-2 bg-light"><strong>{{ recipe.carbs }}</strong><br><span class="small text-muted">Glucides</span></div></div>
+            {% endif %}
+            {% if recipe.fat %}
+              <div class="col-6 col-md-3"><div class="border rounded p-2 bg-light"><strong>{{ recipe.fat }}</strong><br><span class="small text-muted">Lipides</span></div></div>
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
     </div>
+
+    <div class="card p-3 mb-3">
+      <h5>Commentaires</h5>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'recettes:add_comment' recipe.pk %}">
+          {% csrf_token %}
+          <textarea name="content" class="form-control" rows="3" placeholder="Ecrire un commentaire..."></textarea>
+          <button type="submit" class="btn btn-success mt-2">Envoyer</button>
+        </form>
+        <p class="small text-muted mt-2 mb-0">Les commentaires sont visibles apres moderation.</p>
+      {% else %}
+        <p class="text-muted">Connecte-toi pour commenter.</p>
+      {% endif %}
+
+      <hr>
+
+      {% for comment in approved_comments %}
+        <div class="border rounded p-2 mb-2">
+          <strong>{{ comment.user.username }}</strong>
+          <small class="text-muted">{{ comment.created_at|date:"d M Y H:i" }}</small>
+          <p class="mb-0">{{ comment.content }}</p>
+        </div>
+      {% empty %}
+        <p class="text-muted">Aucun commentaire approuve pour le moment.</p>
+      {% endfor %}
+    </div>
+
+    {% if similar_recipes %}
+      <h5 class="mb-3">Recettes similaires</h5>
+      <div class="row row-cols-1 row-cols-md-3 g-3">
+        {% for similar in similar_recipes %}
+          <div class="col">
+            {% include 'base/_recipe_card.html' with recipe=similar %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
   </div>
 
   <div class="col-md-4">
-    <div class="card p-3">
+    <div class="card p-3 mb-3">
       <h6>Informations</h6>
       <p class="small mb-1">Auteur: {{ recipe.author.username }}</p>
-      <p class="small mb-1">Note: {{ recipe.average_rating|default:0 }} ({{ recipe.ratings_count|default:0 }})</p>
-      {% if user.is_authenticated and user == recipe.author %}
-        <a href="{% url 'recettes:edit' recipe.pk %}" class="btn btn-sm btn-outline-primary w-100 mb-2">Modifier</a>
+      <p class="small mb-2">
+        Note: <strong>{{ recipe.average_rating|floatformat:1|default:0 }}</strong>
+        ({{ recipe.ratings_count|default:0 }} votes)
+      </p>
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'recettes:rate' recipe.pk %}" class="mb-3">
+          {% csrf_token %}
+          <label class="form-label small">Votre note</label>
+          <div class="d-flex gap-1 mb-2">
+            {% for score in "12345" %}
+              <input class="btn-check" type="radio" name="score" id="score{{ score }}" value="{{ score }}" required>
+              <label class="btn btn-outline-warning btn-sm" for="score{{ score }}">
+                <i class="bi bi-star-fill"></i> {{ score }}
+              </label>
+            {% endfor %}
+          </div>
+          <button class="btn btn-sm btn-warning w-100" type="submit">
+            {% if user_rating %}Modifier ma note{% else %}Noter{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'users:login' %}" class="btn btn-outline-warning w-100 mb-3">Se connecter pour noter</a>
       {% endif %}
-      <a href="#" class="btn btn-success w-100">Ajouter aux favoris</a>
+
+      {% if user.is_authenticated and user == recipe.author %}
+        <a href="{% url 'recettes:edit' recipe.pk %}" class="btn btn-sm btn-outline-primary w-100 mb-2">
+          <i class="bi bi-pencil me-1"></i> Modifier
+        </a>
+        <a href="{% url 'recettes:delete' recipe.pk %}" class="btn btn-sm btn-outline-danger w-100 mb-2">
+          <i class="bi bi-trash me-1"></i> Supprimer
+        </a>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'recettes:favorite_toggle' recipe.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if recipe.is_favorite %}btn-danger{% else %}btn-success{% endif %} w-100">
+            <i class="bi {% if recipe.is_favorite %}bi-heart-fill{% else %}bi-heart{% endif %}"></i>
+            {% if recipe.is_favorite %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'users:login' %}" class="btn btn-success w-100">
+          <i class="bi bi-heart"></i> Ajouter aux favoris
+        </a>
+      {% endif %}
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.getElementById('servingsInput');
+  const target = document.getElementById('ingredientsText');
+  if (!input || !target) return;
+
+  const baseServings = Number(input.dataset.baseServings || 1);
+  const originalText = target.textContent;
+
+  function formatNumber(value) {
+    const rounded = Math.round(value * 100) / 100;
+    return Number.isInteger(rounded) ? String(rounded) : String(rounded).replace('.', ',');
+  }
+
+  function scaleIngredients() {
+    const servings = Math.max(1, Number(input.value || baseServings));
+    const ratio = servings / baseServings;
+    target.textContent = originalText.replace(/(\d+(?:[,.]\d+)?)/g, function (match) {
+      return formatNumber(Number(match.replace(',', '.')) * ratio);
+    });
+  }
+
+  input.addEventListener('input', scaleIngredients);
+});
+</script>
 {% endblock %}

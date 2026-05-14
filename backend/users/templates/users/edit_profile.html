@@ -26,8 +26,7 @@
             <label for="{{ form.avatar.id_for_label }}" class="form-label">
               <i class="bi bi-image me-1"></i> Photo de profil
             </label>
-            <input type="file" class="form-control {% if form.avatar.errors %}is-invalid{% endif %}" 
-                   id="{{ form.avatar.id_for_label }}" name="{{ form.avatar.name }}" accept="image/*">
+            {{ form.avatar }}
             {% if form.avatar.errors %}
               <div class="invalid-feedback d-block">
                 {% for error in form.avatar.errors %}
@@ -43,9 +42,7 @@
             <label for="{{ form.bio.id_for_label }}" class="form-label">
               <i class="bi bi-chat-left-text me-1"></i> Biographie
             </label>
-            <textarea class="form-control {% if form.bio.errors %}is-invalid{% endif %}" 
-                      id="{{ form.bio.id_for_label }}" name="{{ form.bio.name }}" rows="3" 
-                      placeholder="Parlez-nous un peu de vous..." maxlength="500">{{ form.instance.bio }}</textarea>
+            {{ form.bio }}
             {% if form.bio.errors %}
               <div class="invalid-feedback d-block">
                 {% for error in form.bio.errors %}
@@ -61,9 +58,7 @@
             <label for="{{ form.email.id_for_label }}" class="form-label">
               <i class="bi bi-envelope me-1"></i> Email
             </label>
-            <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
-                   id="{{ form.email.id_for_label }}" name="{{ form.email.name }}" 
-                   value="{{ form.instance.user.email }}" placeholder="votre@email.com">
+            {{ form.email }}
             {% if form.email.errors %}
               <div class="invalid-feedback d-block">
                 {% for error in form.email.errors %}
@@ -78,9 +73,7 @@
             <label for="{{ form.first_name.id_for_label }}" class="form-label">
               <i class="bi bi-person me-1"></i> Prénom
             </label>
-            <input type="text" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
-                   id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.name }}" 
-                   value="{{ form.instance.user.first_name }}" placeholder="Votre prénom">
+            {{ form.first_name }}
             {% if form.first_name.errors %}
               <div class="invalid-feedback d-block">
                 {% for error in form.first_name.errors %}
@@ -95,9 +88,7 @@
             <label for="{{ form.last_name.id_for_label }}" class="form-label">
               <i class="bi bi-person me-1"></i> Nom
             </label>
-            <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
-                   id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.name }}" 
-                   value="{{ form.instance.user.last_name }}" placeholder="Votre nom">
+            {{ form.last_name }}
             {% if form.last_name.errors %}
               <div class="invalid-feedback d-block">
                 {% for error in form.last_name.errors %}

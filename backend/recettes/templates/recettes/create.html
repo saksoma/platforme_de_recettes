@@ -1,68 +1,82 @@
 {% extends 'base/base.html' %}
-{% block title %}Créer une recette - Recettes Maison{% endblock %}
+{% block title %}Creer une recette - Recettes Maison{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8">
+  <div class="col-md-9">
     <div class="card">
       <div class="card-body">
-        <h3 class="card-title mb-4">Créer une recette</h3>
+        <h3 class="card-title mb-4">Creer une recette</h3>
 
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          {% if form.non_field_errors %}
-            <div class="alert alert-danger">
-              {{ form.non_field_errors }}
-            </div>
-          {% endif %}
+          {{ form.non_field_errors }}
 
           <div class="mb-3">
             <label class="form-label">{{ form.title.label }}</label>
             {{ form.title }}
-            {% if form.title.errors %}
-              <div class="invalid-feedback d-block">{{ form.title.errors }}</div>
-            {% endif %}
+            {{ form.title.errors }}
           </div>
 
           <div class="mb-3">
             <label class="form-label">{{ form.description.label }}</label>
             {{ form.description }}
-            {% if form.description.errors %}
-              <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
-            {% endif %}
+            {{ form.description.errors }}
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">{{ form.ingredients.label }}</label>
-            {{ form.ingredients }}
-            {% if form.ingredients.errors %}
-              <div class="invalid-feedback d-block">{{ form.ingredients.errors }}</div>
-            {% endif %}
+          <div class="row">
+            <div class="col-md-8 mb-3">
+              <label class="form-label">{{ form.ingredients.label }}</label>
+              {{ form.ingredients }}
+              {{ form.ingredients.errors }}
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">{{ form.servings.label }}</label>
+              {{ form.servings }}
+              {{ form.servings.errors }}
+            </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label">{{ form.steps.label }}</label>
             {{ form.steps }}
-            {% if form.steps.errors %}
-              <div class="invalid-feedback d-block">{{ form.steps.errors }}</div>
-            {% endif %}
+            {{ form.steps.errors }}
           </div>
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ form.preparation_time.label }}</label>
               {{ form.preparation_time }}
-              {% if form.preparation_time.errors %}
-                <div class="invalid-feedback d-block">{{ form.preparation_time.errors }}</div>
-              {% endif %}
+              {{ form.preparation_time.errors }}
             </div>
-
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ form.difficulty.label }}</label>
               {{ form.difficulty }}
-              {% if form.difficulty.errors %}
-                <div class="invalid-feedback d-block">{{ form.difficulty.errors }}</div>
-              {% endif %}
+              {{ form.difficulty.errors }}
+            </div>
+          </div>
+
+          <h5 class="mt-2">Valeurs nutritionnelles optionnelles</h5>
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label class="form-label">{{ form.calories.label }}</label>
+              {{ form.calories }}
+              {{ form.calories.errors }}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">{{ form.protein.label }}</label>
+              {{ form.protein }}
+              {{ form.protein.errors }}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">{{ form.carbs.label }}</label>
+              {{ form.carbs }}
+              {{ form.carbs.errors }}
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">{{ form.fat.label }}</label>
+              {{ form.fat }}
+              {{ form.fat.errors }}
             </div>
           </div>
 
@@ -70,32 +84,27 @@
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ form.category.label }}</label>
               {{ form.category }}
-              {% if form.category.errors %}
-                <div class="invalid-feedback d-block">{{ form.category.errors }}</div>
-              {% endif %}
+              {{ form.category.errors }}
             </div>
-
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ form.image.label }}</label>
               {{ form.image }}
-              {% if form.image.errors %}
-                <div class="invalid-feedback d-block">{{ form.image.errors }}</div>
-              {% endif %}
+              {{ form.image.errors }}
             </div>
           </div>
 
           <div class="mb-3">
             <label class="form-label">{{ form.tags.label }}</label>
-            <div>
-              {{ form.tags }}
-            </div>
-            {% if form.tags.errors %}
-              <div class="invalid-feedback d-block">{{ form.tags.errors }}</div>
-            {% endif %}
+            {{ form.tags }}
+            {{ form.tags.errors }}
+          </div>
+
+          <div class="alert alert-info small">
+            Les nouvelles recettes sont envoyees en moderation avant publication.
           </div>
 
           <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">Créer la recette</button>
+            <button type="submit" class="btn btn-success">Creer la recette</button>
             <a href="{% url 'recettes:home' %}" class="btn btn-outline-secondary">Annuler</a>
           </div>
         </form>

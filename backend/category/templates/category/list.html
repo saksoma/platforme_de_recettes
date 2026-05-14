@@ -18,7 +18,18 @@
         <div class="card-body">
           <h5 class="card-title">{{ category.name }}</h5>
           <p class="card-text text-muted">{{ category.recipe_count }} recettes</p>
-          <a href="{% url 'category:detail' category.slug %}" class="stretched-link"></a>
+          {% if user.is_staff %}
+            <div class="d-flex gap-2 mt-3">
+              <a href="{% url 'category:update' category.slug %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Modifier
+              </a>
+              <a href="{% url 'category:delete' category.slug %}" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </a>
+            </div>
+          {% else %}
+            <a href="{% url 'category:detail' category.slug %}" class="stretched-link"></a>
+          {% endif %}
         </div>
       </div>
     </div>

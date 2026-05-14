@@ -16,31 +16,31 @@
     <h6 class="mb-2">Temps de préparation</h6>
     <div class="mb-3">
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="time" value="0-15" id="t1">
+        <input class="form-check-input" type="radio" name="prep_time" value="0-15" id="t1" {% if request.GET.prep_time == '0-15' %}checked{% endif %}>
         <label class="form-check-label" for="t1">Moins de 15 min</label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="time" value="15-30" id="t2">
+        <input class="form-check-input" type="radio" name="prep_time" value="15-30" id="t2" {% if request.GET.prep_time == '15-30' %}checked{% endif %}>
         <label class="form-check-label" for="t2">15 - 30 min</label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="time" value=">30" id="t3">
+        <input class="form-check-input" type="radio" name="prep_time" value=">30" id="t3" {% if request.GET.prep_time == '>30' %}checked{% endif %}>
         <label class="form-check-label" for="t3">Plus de 30 min</label>
       </div>
     </div>
 
     <h6 class="mb-2">Difficulté</h6>
     <div class="mb-3">
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="difficulty" value="facile" id="d1">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="difficulty" value="easy" id="d1">
         <label class="form-check-label" for="d1">Facile</label>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="difficulty" value="moyen" id="d2">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="difficulty" value="medium" id="d2">
         <label class="form-check-label" for="d2">Moyen</label>
       </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" name="difficulty" value="difficile" id="d3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="difficulty" value="hard" id="d3">
         <label class="form-check-label" for="d3">Difficile</label>
       </div>
     </div>

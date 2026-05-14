@@ -24,6 +24,11 @@
 
         <div class="card-body pb-3">
           <h5 class="card-title">{{ recipe.title }}</h5>
+          <div class="mb-2">
+            <span class="badge {% if recipe.status == 'approved' %}bg-success{% elif recipe.status == 'pending' %}bg-warning text-dark{% elif recipe.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+              {{ recipe.get_status_display }}
+            </span>
+          </div>
           <div class="d-flex justify-content-between small text-muted mb-2">
             <div><i class="bi bi-clock me-1"></i> {{ recipe.preparation_time }} min</div>
             <div>{{ recipe.get_difficulty_display }}</div>

@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Delete Tag - Recipe Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="alert alert-danger">
+                <h4>⚠️ Delete Tag: {{ tag.name }}</h4>
+                <p class="mb-0">This action cannot be undone!</p>
+            </div>
+
+            {% if recipe_count > 0 %}
+            <div class="alert alert-warning">
+                <strong>Warning:</strong> This tag is used by {{ recipe_count }} recipe{{ recipe_count|pluralize }}.
+                These recipes will NOT be deleted, only the tag assignment will be removed.
+            </div>
+
+            <h5>Affected Recipes:</h5>
+            <ul class="list-group mb-4">
+                {% for recipe in recipes %}
+                <li class="list-group-item">
+                    <a href="{% url 'recettes:detail' recipe.slug %}">{{ recipe.title }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete Tag
+                </button>
+                <a href="{% url 'tag:list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

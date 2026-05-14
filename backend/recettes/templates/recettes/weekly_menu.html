@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+{% block title %}Menu hebdomadaire - Recettes Maison{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3 class="mb-0">Menu hebdomadaire</h3>
+    <p class="text-muted mb-0">Planifiez vos recettes pour la semaine.</p>
+  </div>
+  <a href="{% url 'recettes:home' %}" class="btn btn-outline-secondary">Voir les recettes</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card p-3">
+      <h5>Ajouter au menu</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">{{ form.date.label }}</label>
+          {{ form.date }}
+          {{ form.date.errors }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ form.meal_type.label }}</label>
+          {{ form.meal_type }}
+          {{ form.meal_type.errors }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ form.recipe.label }}</label>
+          {{ form.recipe }}
+          {{ form.recipe.errors }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">{{ form.servings.label }}</label>
+          {{ form.servings }}
+          {{ form.servings.errors }}
+        </div>
+        <button class="btn btn-success w-100" type="submit">
+          <i class="bi bi-calendar-plus me-1"></i> Ajouter
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card p-3">
+      <h5>Cette semaine</h5>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Repas</th>
+              <th>Recette</th>
+              <th>Portions</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in menu_items %}
+              <tr>
+                <td>{{ item.date|date:"d/m/Y" }}</td>
+                <td>{{ item.get_meal_type_display }}</td>
+                <td>
+                  <a href="{% url 'recettes:detail' item.recipe.pk %}">{{ item.recipe.title }}</a>
+                  {% if item.recipe.category %}
+                    <div class="small text-muted">{{ item.recipe.category.name }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ item.servings }}</td>
+                <td class="text-end">
+                  <form method="post" action="{% url 'recettes:remove_menu_item' item.pk %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-muted">Aucun repas planifie cette semaine.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

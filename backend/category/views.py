@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from .models import Category
 from .forms import CategoryForm
@@ -27,3 +27,24 @@ def create_category(request):
         form = CategoryForm()
     return render(request, 'category/create.html', {'form': form})
 
+
+@user_passes_test(is_admin)
+def update_category(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('category:list')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'category/update.html', {'form': form, 'category': category})
+
+
+@user_passes_test(is_admin)
+def delete_category(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    if request.method == 'POST':
+        category.delete()
+        return redirect('category:list')
+    return render(request, 'category/delete.html', {'category': category})

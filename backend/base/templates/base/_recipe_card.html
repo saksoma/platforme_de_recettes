@@ -1,4 +1,4 @@
-<div class="card recipe-card h-100 shadow-sm border-0">
+<a href="{% url 'recettes:detail' recipe.pk %}" class="card recipe-card h-100 shadow-sm border-0 text-decoration-none text-dark" style="cursor: pointer;">
   <div class="position-relative">
     {% if recipe.image %}
       <img src="{{ recipe.image.url }}" class="card-img-top rounded-top" alt="{{ recipe.title }}">
@@ -9,33 +9,73 @@
     {% endif %}
 
     {% if recipe.category %}
-  <span class="badge bg-success position-absolute top-2 start-2 text-white">{{ recipe.category.name }}</span>
+      <span class="badge bg-success position-absolute top-2 start-2 text-white">{{ recipe.category.name }}</span>
     {% endif %}
 
-  <a href="{% url 'recettes:favorite_toggle' recipe.id %}" class="position-absolute top-2 end-2 btn btn-sm btn-light rounded-circle shadow-sm">
+    <button onclick="event.stopPropagation()" class="position-absolute top-2 end-2 btn btn-sm btn-light rounded-circle shadow-sm favorite-btn" data-recipe-id="{{ recipe.pk }}">
       <i class="bi bi-heart{% if recipe.is_favorite %}-fill text-danger{% endif %}"></i>
-    </a>
+    </button>
   </div>
 
   <div class="card-body pb-3">
     <h5 class="card-title">{{ recipe.title }}</h5>
     <div class="d-flex justify-content-between small text-muted mb-2">
       <div><i class="bi bi-clock me-1"></i> {{ recipe.preparation_time }} min</div>
-      <div>{{ recipe.get_difficulty_display }}</div>
+      <div>{{ recipe.servings }} portions</div>
     </div>
 
     <div class="d-flex align-items-center justify-content-between">
       <div>
-  <span class="fw-bold">{{ recipe.average_rating|default:0 }}</span>
-  <span class="text-muted">({{ recipe.ratings_count|default:0 }})</span>
+        <i class="bi bi-star-fill text-warning"></i>
+        <span class="fw-bold">{{ recipe.average_rating|floatformat:1|default:0 }}</span>
+        <span class="text-muted">({{ recipe.ratings_count|default:0 }})</span>
       </div>
-      <div>
-        {% for tag in recipe.tags.all|slice:":3" %}
-          <span class="badge bg-light text-muted">{{ tag.name }}</span>
+      <div class="d-flex gap-1 flex-wrap">
+        {% for tag in recipe.tags.all|slice:":2" %}
+          <span class="badge bg-info text-white small">{{ tag.name }}</span>
         {% empty %}
           <span class="text-muted small">Sans tags</span>
         {% endfor %}
+        {% if recipe.tags.all|length > 2 %}
+          <span class="badge bg-secondary text-white small">+{{ recipe.tags.all|length|add:"-2" }}</span>
+        {% endif %}
       </div>
     </div>
   </div>
-</div>
+</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const recipeId = btn.dataset.recipeId;
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+      
+      try {
+        const response = await fetch(`/recettes/favorite/${recipeId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const icon = btn.querySelector('i');
+          if (data.is_favorite) {
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill', 'text-danger');
+          } else {
+            icon.classList.remove('bi-heart-fill', 'text-danger');
+            icon.classList.add('bi-heart');
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  });
+});
+</script>
